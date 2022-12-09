@@ -1,6 +1,6 @@
 # Private Search Set (PSS)
 
-Private Search Set (PSS) is an extension to [standard Bloom filter](https://github.com/hashlookup/fleur) to describe and share private set.
+Private Search Set (PSS) is an extension to [standard Bloom filter](https://github.com/hashlookup/fleur) or a standalone hash file to describe and share private set.
 
 ## Features
 
@@ -9,6 +9,22 @@ Private Search Set (PSS) is an extension to [standard Bloom filter](https://gith
 - Watermarking and tracking down potential leak of a private search set (PSS)
 - Offline private search
 - Flexible meta-format to describe and extend the private search set (PSS)
+
+## Overview of creation and lookup of PSS
+
+~~~~mermaid
+flowchart TD
+    Y["canonize(foobar.onion)"] --> A
+    A["insert keyhashed(foobar.onion)"] -->|key, Blake2| B[key-hashed]
+    B --> |insert| C[Distributed PSS file]
+    B --> |insert| D[Distributed PSS Bloomfilter]
+    style B fill:#0f0,stroke:#333,stroke-width:4px
+    style Y fill:#0f0,stroke:#333,stroke-width:4px
+    style A fill:#0f0,stroke:#333,stroke-width:4px
+    style Z fill:#fff,stroke:#333,stroke-width:4px
+    Z["search keyhashed(canonized foobar.onion)"] -->|search| C
+    Z["search keyhashed(canonized foobar.onion)"] -->|search| D
+~~~~
 
 ## Meta format
 
@@ -34,3 +50,17 @@ Private Search Set (PSS) is an extension to [standard Bloom filter](https://gith
    "version": 1
 }
 ~~~~
+
+### Feed format
+
+The feed format is composed of a directory with the following structure:
+
+- `private-search-set.pss` - Private search as a standalone file.
+- `private-search-set.json` - Meta data of the privae search file.
+
+Those two files can be included in a MISP feed format export.
+
+### MISP Object template
+
+A private-search-set MISP oject template will be created to be able to share PSS via MISP.
+
