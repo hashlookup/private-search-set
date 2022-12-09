@@ -55,8 +55,9 @@ flowchart TD
 
 The feed format is composed of a directory with the following structure:
 
-- `private-search-set.pss` - Private search as a standalone file.
-- `private-search-set.json` - Meta data of the privae search file.
+- `private-search-set.pss` - Private search as a standalone file. `required`
+- `private-search-set.json` - Meta data of the privae search file. `required`
+- `private-search-set.bloom` - Bloomfilter file of the pss set. `required`
 
 Those two files can be included in a MISP feed format export.
 
