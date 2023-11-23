@@ -36,6 +36,7 @@ flowchart TD
 |`keyid`|`string`|The reference to the key used in the keyed-hash message authentication algorithm.|&check;|
 |`bloomfilter`|`hash`|The BloomFilter description along with its format and model.|&check;|
 |`misp-attribute-types`|`array`|Array of `string` with the types covered by the private search set. Types can be any from types [mentioned in the default MISP types](https://www.circl.lu/doc/misp/categories-and-types/#types). If not specified, all types are covered.|-|
+|`misp-object-template`|`array`|Array of `string` with the object template name and the version separated with a semicolon. `person:19`|-|
 |`canonicalization-format`|`string`|Meta function used expressed in Python functions. Such as `lower()[:10]`|-|
 |`openpgp-encrypted-key`|`string`|Base64 OpenPGP message encrypting the reference `keyid`. This is optional as the key can be distributed in different means such as dedicated MISP API key or other secure channel.|-|
 
@@ -52,18 +53,27 @@ flowchart TD
 |Name|Description|
 |:-------|:----|
 |`dcso-v1`|DCSO BloomFilter using 64-bit FNV-1 hash function.|
-|`circl-v1`|CIRCL BloomFilter using 64-bit XXH3.|
+|`hashlookup-v1`|hashlookup BloomFilter using 64-bit XXH3.|
 
 ### Sample 
 
 ~~~~json
-{  
-   "misp-attribute-types" : ["text", "url", "link"]
-   "description": "List of Tor hidden services containing child sexual abuse material (CSAM)."
-   "keyid": "tor-csam-lea"
-   "algorithm": "Blake2"
-   "canonicalization-format`": ".lower"
-   "version": 1
+{
+  "algorithm": "Blake2",
+  "bloomfilter": {
+    "capacity": 10000,
+    "format": "dcso-v1",
+    "fp-probability": 0.001
+  },
+  "canonicalization-format`": ".lower",
+  "description": "List of Tor hidden services containing child sexual abuse material (CSAM).",
+  "keyid": "tor-csam-lea",
+  "misp-attribute-types": [
+    "text",
+    "url",
+    "link"
+  ],
+  "version": 1
 }
 ~~~~
 
