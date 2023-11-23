@@ -30,8 +30,9 @@ flowchart TD
 
 |Key name|Type|Description|Required|
 |:-------|:----|:---|:---:|
-|`version`|`number`|Version of the Private Search Set (PSS)|&check;|
-|`description`|`string`|Human readable description of the set |&check;|
+|`version`|`number`|Version of the Private Search Set (PSS).|&check;|
+|`description`|`string`|Human readable description of the set.|&check;|
+|`generated-timestamp`|`number`|Generation timestamp in epoch format. |&check;|
 |`algorithm`|`string`|Keyed-hash message authentication. Available:<br/> - Blake2b<br/> - Blake3<br/> - HMAC-SHA-256<br /> - HMAC-SHA-512  |&check;|
 |`keyid`|`string`|The reference to the key used in the keyed-hash message authentication algorithm.|&check;|
 |`bloomfilter`|`hash`|The BloomFilter description along with its format and model.|&check;|
@@ -67,6 +68,7 @@ flowchart TD
   },
   "canonicalization-format`": ".lower",
   "description": "List of Tor hidden services containing child sexual abuse material (CSAM).",
+  "generated-timestamp": 1700731642,
   "keyid": "tor-csam-lea",
   "misp-attribute-types": [
     "text",
@@ -75,6 +77,7 @@ flowchart TD
   ],
   "version": 1
 }
+
 ~~~~
 
 ### Feed format
