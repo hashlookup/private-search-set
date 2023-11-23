@@ -34,9 +34,25 @@ flowchart TD
 |`description`|`string`|Human readable description of the set |&check;|
 |`algorithm`|`string`|Keyed-hash message authentication. Available:<br/> - Blake2b<br/> - Blake3<br/> - HMAC-SHA-256<br /> - HMAC-SHA-512  |&check;|
 |`keyid`|`string`|The reference to the key used in the keyed-hash message authentication algorithm.|&check;|
+|`bloomfilter`|`hash`|The BloomFilter description along with its format and model.|&check;|
 |`misp-attribute-types`|`array`|Array of `string` with the types covered by the private search set. Types can be any from types [mentioned in the default MISP types](https://www.circl.lu/doc/misp/categories-and-types/#types). If not specified, all types are covered.|-|
 |`canonicalization-format`|`string`|Meta function used expressed in Python functions. Such as `lower()[:10]`|-|
 |`openpgp-encrypted-key`|`string`|Base64 OpenPGP message encrypting the reference `keyid`. This is optional as the key can be distributed in different means such as dedicated MISP API key or other secure channel.|-|
+
+### Meta format `bloomfilter`
+
+|Key name|Type|Description|Required|
+|:-------|:----|:---|:---:|
+|`capacity`|`number`|Capacity of the BloomFilter|&check;|
+|`fp-probability`|`number`|Probability of false-positive|&check;|
+|`format`|`string`|Format of the BloomFilter such as `dcso-v1` or `circl-v1`|&check;|
+
+#### List of known `bloomfilter` format
+
+|Name|Description|
+|:-------|:----|
+|`dcso-v1`|DCSO BloomFilter using 64-bit FNV-1 hash function.|
+|`circl-v1`|CIRCL BloomFilter using 64-bit XXH3.|
 
 ### Sample 
 
