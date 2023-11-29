@@ -31,6 +31,7 @@ flowchart TD
 |Key name|Type|Description|Required|
 |:-------|:----|:---|:---:|
 |`version`|`number`|Version of the Private Search Set (PSS).|&check;|
+|`name`|`string`|A concise name used for the directory name.|&check;|
 |`description`|`string`|Human readable description of the set.|&check;|
 |`generated-timestamp`|`number`|Generation timestamp in epoch format. |&check;|
 |`algorithm`|`string`|Keyed-hash message authentication. Available:<br/> - Blake2b<br/> - Blake3<br/> - HMAC-SHA-256<br /> - HMAC-SHA-512  |&check;|
