@@ -1,3 +1,8 @@
+import json 
+import os
+from flor import BloomFilter
+import sys
+
 class PrivateSearchSet:
     def __init__(self, algorithm, bloomfilter, canonicalization_format, description, generated_timestamp, keyid, misp_attribute_types, version):
         self.algorithm = algorithm
@@ -18,6 +23,34 @@ class PrivateSearchSet:
         print("Key ID:", private_search_set.keyid)
         print("MISP Attribute Types:", private_search_set.misp_attribute_types)
         print("Version:", private_search_set.version)
+
+    def load_from_json_specs(json_file):
+        with open(json_file) as file:
+            json_data = json.load(file)
+            data = {k.replace('-', '_'): v for k, v in json_data.items()}
+            pss = PrivateSearchSet(**data)  # Create an instance of the PrivateSearchSet class
+        if set(data.keys()) == set(pss.__dict__.keys()):
+            PrivateSearchSet.print_private_search_set(pss)
+            return pss
+        else:
+            raise ValueError("JSON file does not match the expected format.")
+
+    def ingest_stdin(self):
+        if self.bloomfilter['format'] == 'dcso-v1':
+            self.bf = BloomFilter(n=self.bloomfilter['capacity'], p=self.bloomfilter['fp-probability'])
+            # Read bytes from stdin  
+            for line in sys.stdin.buffer.read().splitlines():  
+                self.bf.add(line)
+        else:
+            raise ValueError("Bloomfilter format not supported.")
+        
+    def write_to_files(self, pss_home):
+        if not os.path.exists(pss_home):
+            os.makedirs(pss_home)
+        file_path = os.path.join(pss_home, 'private-search-set.bloom')
+        with open(file_path, 'wb') as f:
+            self.bf.write(f)
+
 
 # Example usage:
 # json_data = {
