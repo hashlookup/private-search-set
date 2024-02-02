@@ -17,6 +17,7 @@ def ingest_stdin(ctx):
 @click.pass_context
 def cli(ctx, json_file, pss_home, ingest, debug):
     ctx.obj = PrivateSearchSet.load_from_json_specs(json_file)
+    ctx.obj.init_filter()
     if ingest:
         ingest_stdin()
     pass

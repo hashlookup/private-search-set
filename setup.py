@@ -7,6 +7,7 @@ setup(
     install_requires=[
         "flor",
         "click",
+        "hashlib",
     ],
     entry_points='''
         [console_scripts]

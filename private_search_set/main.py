@@ -1,7 +1,8 @@
 import json 
 import os
-from flor import BloomFilter
 import sys
+import hashlib
+from flor import BloomFilter
 
 class PrivateSearchSet:
     def __init__(self, algorithm, bloomfilter, canonicalization_format, description, generated_timestamp, keyid, misp_attribute_types, version):
@@ -34,42 +35,37 @@ class PrivateSearchSet:
             return pss
         else:
             raise ValueError("JSON file does not match the expected format.")
-
-    def ingest_stdin(self):
+    
+    def init_filter(self):
         if self.bloomfilter['format'] == 'dcso-v1':
-            self.bf = BloomFilter(n=self.bloomfilter['capacity'], p=self.bloomfilter['fp-probability'])
-            # Read bytes from stdin  
-            for line in sys.stdin.buffer.read().splitlines():  
-                self.bf.add(line)
+            self._bf = BloomFilter(n=self.bloomfilter['capacity'], p=self.bloomfilter['fp-probability'])
         else:
             raise ValueError("Bloomfilter format not supported.")
+
+    def ingest_stdin(self):
+        # Read bytes from stdin  
+        self._ps = set()
+        for line in sys.stdin.buffer.read().splitlines():  
+            if self.bloomfilter['format'] == 'dcso-v1':
+                self._bf.add(line)
+            if self.algorithm == 'Blake2':
+                # TODO use a salt
+                self._ps.add(hashlib.blake2b(line, key=self.keyid.encode()).hexdigest())
         
     def write_to_files(self, pss_home):
         if not os.path.exists(pss_home):
             os.makedirs(pss_home)
+        # Write the bloom filter
         file_path = os.path.join(pss_home, 'private-search-set.bloom')
         with open(file_path, 'wb') as f:
-            self.bf.write(f)
-
-
-# Example usage:
-# json_data = {
-#     "algorithm": "Blake2",
-#     "bloomfilter": {
-#         "capacity": 10000,
-#         "format": "dcso-v1",
-#         "fp-probability": 0.001
-#     },
-#     "canonicalization-format": ".lower",
-#     "description": "List of Tor hidden services to filter",
-#     "generated-timestamp": 1700731642,
-#     "keyid": "tor-csam-lea",
-#     "misp-attribute-types": [
-#         "text",
-#         "url",
-#         "link"
-#     ],
-#     "version": 1
-# }
-
-# private_search_set = PrivateSearchSet(**json_data)
+            self._bf.write(f)
+        # Write the JSON file
+        file_path = os.path.join(pss_home, 'private-search-set.json')
+        with open(file_path, 'w') as f:
+            export = {k: v for k, v in self.__dict__.items() if k.startswith('_') != True}
+            f.write(json.dumps(export))
+        # Write the private search file
+        file_path = os.path.join(pss_home, 'private-search-set.pss')
+        with open(file_path, 'w') as f:
+            for ps in self._ps:
+                f.write(f"{ps}\n")
