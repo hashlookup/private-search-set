@@ -90,12 +90,12 @@ class PrivateSearchSet:
         # TODO Use the keyid to get the key from the key store
         self._key = 'infected'
 
-    def ingest_stdin(self):
+    def ingest_stdin(self, debug):
         # Read bytes from stdin  
         for line in sys.stdin.buffer.read().splitlines():  
-            self.ingest(line)
+            self.ingest(line, debug)
    
-    def ingest(self, data):
+    def ingest(self, data, debug):
         # HMAC the data
         hashed = b''
         if self.algorithm == 'Blake2':
@@ -106,16 +106,20 @@ class PrivateSearchSet:
             raise ValueError("HMAC algorithm not supported.")
 
         # add the string digest to the private search set
+        if debug:
+            print(f"Ingesting in private search set: {hashed_string}")
         self._ps.add(hashed_string)
         # add the utf8 encoded bytes representation of the hexdigest to the bloom filter
         if self.bloomfilter['format'] == 'dcso-v1':
+            if debug:
+                print(f"Ingesting in bloom filter:     {hashed_bytes}")
             self._bf.add(hashed_bytes)
 
-    def check_stdin(self, debug):
+    def check_stdin(self, bf, debug):
         # Read bytes from stdin  
         for line in sys.stdin.buffer.read().splitlines():  
             # check hashset in priority
-            if self._ps != None:
+            if self._ps != None and bf == False:
                 if debug:
                     print(f"Checking against private search set: {line}")
                 if self.check_pss(line):
