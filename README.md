@@ -59,14 +59,15 @@ flowchart TD
 |:-------|:----|:---|:---:|
 |`capacity`|`number`|Capacity of the BloomFilter|&check;|
 |`fp-probability`|`number`|Probability of false-positive|&check;|
-|`format`|`string`|Format of the BloomFilter such as `dcso-v1` or `circl-v1`|&check;|
+|`format`|`string`|Format of the BloomFilter such as `dcso-v1` or `poppy-v2`|&check;|
+|`match-count`|`number`|Number of count match to confirm if it's a positive match. Default is `1`.|&dash;|
 
 #### List of known `bloomfilter` format
 
 |Name|Description|
 |:-------|:----|
-|`dcso-v1`|DCSO BloomFilter using 64-bit FNV-1 hash function.|
-|`hashlookup-v1`|hashlookup BloomFilter using 64-bit XXH3.|
+|`dcso-v1`|[DCSO BloomFilter](https://github.com/DCSO/bloom) using 64-bit FNV-1 hash function.|
+|`poppy-v2`|[Poppy](https://github.com/hashlookup/poppy) using 64-bit with wyHash.|
 
 ### Sample 
 
@@ -96,11 +97,11 @@ flowchart TD
 
 The feed format is composed of a directory with the following structure:
 
-- `private-search-set.pss` - Private search as a standalone file. `required`
+- `private-search-set.pss` - Private search as a standalone file. `OneOfrequired`
 - `private-search-set.json` - Meta data of the private search file. `required`
-- `private-search-set.bloom` - Bloomfilter file of the pss set. `required`
+- `private-search-set.bloom` - Bloomfilter file of the pss set. `OneOfrequired`
 
-Those two files can be included in a MISP feed format export.
+Those two files can be included in a MISP feed format export. The feed can contain a single Bloom filter set along with meta-data or a hash list file with the hash values or even both files with the meta-data.
 
 ### MISP Object template
 
