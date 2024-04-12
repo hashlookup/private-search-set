@@ -53,7 +53,9 @@ flowchart TD
 |`canonicalization-format`|`string`|Meta function used expressed in Python functions. Such as `lower()[:10]`|-|
 |`openpgp-encrypted-key`|`string`|Base64 OpenPGP message encrypting the reference `keyid`. This is optional as the key can be distributed in different means such as dedicated MISP API key or other secure channel.|-|
 
-### Meta format `bloomfilter`
+### Meta format `format`
+
+#### Format type `bloomfilter`
 
 |Key name|Type|Description|Required|
 |:-------|:----|:---|:---:|
@@ -62,24 +64,33 @@ flowchart TD
 |`format`|`string`|Format of the BloomFilter such as `dcso-v1` or `poppy-v2`|&check;|
 |`match-count`|`number`|Number of count match to confirm if it's a positive match. Default is `1`.|&dash;|
 
-#### List of known `bloomfilter` format
+##### List of known `bloomfilter` format
 
 |Name|Description|
 |:-------|:----|
 |`dcso-v1`|[DCSO BloomFilter](https://github.com/DCSO/bloom) using 64-bit FNV-1 hash function.|
 |`poppy-v2`|[Poppy](https://github.com/hashlookup/poppy) using 64-bit with wyHash.|
 
+#### Format type `misp-feed-cache`
+
 ### Sample 
 
 ~~~~json
 {
   "algorithm": "Blake2",
-  "bloomfilter": {
-    "capacity": 10000,
-    "format": "dcso-v1",
-    "fp-probability": 0.001
-  },
-  "canonicalization-format`": ".lower",
+  "format": [
+    {
+      "bloomfilter": {
+        "capacity": 10000,
+        "format": "dcso-v1",
+        "fp-probability": 0.001
+      }
+    },
+    {
+      "misp-feed-cache": {}
+    }
+  ],
+  "canonicalization-format": ".lower",
   "description": "List of Tor hidden services containing child sexual abuse material (CSAM).",
   "generated-timestamp": 1700731642,
   "keyid": "tor-csam-lea",
