@@ -2,6 +2,8 @@
 
 Private Search Set (PSS) is an extension to [standard Bloom filter](https://github.com/hashlookup/fleur) or a standalone hash file to describe and share private set.
 
+![Private Search Set (PSS) - Overview](https://raw.githubusercontent.com/hashlookup/private-search-set/main/doc/diagram/pss-overview.png)
+
 ## Abstract 
 
 The Private Search Set (PSS) is an extension to the standard Bloom filter or a standalone hash file to describe and share private set. It provides features such as fast lookup of values without disclosing the values, easy distribution of private sets to a group of users or organizations, watermarking and tracking down potential leak of a private search set (PSS), offline private search, and flexible meta-format to describe and extend the private search set (PSS).
