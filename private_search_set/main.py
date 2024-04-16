@@ -2,12 +2,13 @@ import json
 import os
 import sys
 import hashlib
-from private_search_set.bloom_filter_dcso import BloomFilterDCSO
+import pdb
+from private_search_set.bloom_filter_poppy import BloomFilterPoppy
 
 class PrivateSearchSet:
-    def __init__(self, algorithm, bloomfilter, canonicalization_format, description, generated_timestamp, keyid, misp_attribute_types, version):
+    def __init__(self, algorithm, format, canonicalization_format, description, generated_timestamp, keyid, misp_attribute_types, version):
         self.algorithm = algorithm
-        self.bloomfilter = bloomfilter
+        self.format = format 
         self.canonicalization_format = canonicalization_format
         self.description = description
         self.generated_timestamp = generated_timestamp
@@ -17,7 +18,7 @@ class PrivateSearchSet:
 
     def print_private_search_set(private_search_set):
         print("Algorithm:", private_search_set.algorithm)
-        print("Bloomfilter:", private_search_set.bloomfilter)
+        print("Format:", private_search_set.format)
         print("Canonicalization Format:", private_search_set.canonicalization_format)
         print("Description:", private_search_set.description)
         print("Generated Timestamp:", private_search_set.generated_timestamp)
@@ -50,15 +51,26 @@ class PrivateSearchSet:
         else:
             raise ValueError("PSS home does not exist.")
         file_path = os.path.join(pss_home, 'private-search-set.bloom')
+        # HERE
         pss.load_bf_from_file(file_path) 
         file_path = os.path.join(pss_home, 'private-search-set.pss')
         pss._ps = pss.load_pss_from_file(file_path) 
         return pss
     
     def load_bf_from_file(self, file_path):
+        # TODO make it more generic (fd / file_path)
         if os.path.exists(file_path):
-            with open(file_path, 'rb') as f:
-                self._bf.load(f)
+            if 'bloomfilter' in self.format[0].keys():
+                if self.format[0]['bloomfilter']['format'] in ['dcso-v1', 'poppy-v2']:
+                    data = self.format[0]['bloomfilter']
+                    data['path'] = file_path
+                    self._bf = BloomFilterPoppy(data)
+                else:
+                    raise ValueError("Only poppy ATM")
+            else:
+                raise ValueError("Only bloomfilter ATM")
+        else:
+            raise ValueError("Bloom filter file does not exist.")
     
     def load_pss_from_file(self, file_path):
         if os.path.exists(file_path):
@@ -68,11 +80,15 @@ class PrivateSearchSet:
             return None
     
     def init_filter_and_set(self):
-        # init bloom filter
-        if self.bloomfilter['format'] == 'dcso-v1':
-            self._bf = BloomFilterDCSO(self.bloomfilter)
+        # TODO loop on list / change _bf to _bfs only it may be not bloomfilters :)
+        # TODO support other format
+        if 'bloomfilter' in self.format[0].keys():
+            if self.format[0]['bloomfilter']['format'] in ['dcso-v1', 'poppy-v2']:
+                self._bf = BloomFilterPoppy(self.format[0]['bloomfilter'])
+            else:
+                raise ValueError("Bloomfilter format not supported.")
         else:
-            raise ValueError("Bloomfilter format not supported.")
+            raise ValueError("Format not supported.")
         
         # init the private search set
         self._ps = set()
@@ -110,7 +126,9 @@ class PrivateSearchSet:
             print(f"Ingesting in private search set: {hashed_string}")
         self._ps.add(hashed_string)
         # add the utf8 encoded bytes representation of the hexdigest to the bloom filter
-        if self.bloomfilter['format'] == 'dcso-v1':
+        # if self.bloomfilter['format'] == 'dcso-v1':
+
+        if 'bloomfilter' in self.format[0].keys():
             if debug:
                 print(f"Ingesting in bloom filter:     {hashed_bytes}")
             self._bf.add(hashed_bytes)
@@ -154,7 +172,7 @@ class PrivateSearchSet:
         else:
             raise ValueError("HMAC algorithm not supported.")
 
-        if self.bloomfilter['format'] == 'dcso-v1':
+        if 'bloomfilter' in self.format[0].keys():
             return self._bf.check(hashed_bytes)
         else:
             raise ValueError("Bloomfilter format not supported.")
@@ -165,8 +183,10 @@ class PrivateSearchSet:
             os.makedirs(pss_home)
         # Write the bloom filter
         file_path = os.path.join(pss_home, 'private-search-set.bloom')
-        with open(file_path, 'wb') as f:
-            self._bf.write(f)
+        # TODO make it more generic (fd / file_path)
+        # with open(file_path, 'wb') as f:
+        if 'bloomfilter' in self.format[0].keys() and self.format[0]['bloomfilter']['format'] in ['dcso-v1', 'popp-v2']: 
+            self._bf.write(file_path)
         # Write the JSON file
         file_path = os.path.join(pss_home, 'private-search-set.json')
         with open(file_path, 'w') as f:

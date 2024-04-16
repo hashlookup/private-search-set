@@ -5,9 +5,8 @@ setup(
     version="0.1",
     packages=find_packages(),
     install_requires=[
-        "flor",
+        "poppy-py",
         "click",
-        "hashlib",
     ],
     entry_points='''
         [console_scripts]
